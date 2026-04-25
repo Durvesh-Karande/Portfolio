@@ -273,10 +273,9 @@ const heroTyped = document.getElementById('heroTyped');
 if (heroTyped) {
     const roles = [
         'Project Coordinator',
-        'Team Leader',
-        'IT Support Specialist',
         'Problem Solver',
-        'Operations Manager'
+        'Android Developer',
+        'Vibe coder'
     ];
     let roleIndex = 0;
     let charIndex = 0;
