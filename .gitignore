@@ -1,0 +1,16 @@
+# System files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editor files
+.vscode/
+*.sublime-project
+*.sublime-workspace
+
+# Server scripts (local only)
+server.ps1
+.claude/
+
+# Logs
+*.log

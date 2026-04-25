@@ -50,6 +50,43 @@ if (statsSection) {
     observer.observe(statsSection);
 }
 
+// ===== 3D Scroll Animation for Stats Cards =====
+const observerOptions3D = {
+    threshold: 0.2,
+    rootMargin: '0px 0px -50px 0px'
+};
+
+const observer3D = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+        if (entry.isIntersecting) {
+            entry.target.classList.add('animate-in');
+        }
+    });
+}, observerOptions3D);
+
+document.querySelectorAll('.stat-card').forEach(card => {
+    observer3D.observe(card);
+});
+
+// Mouse tracking 3D tilt effect
+document.querySelectorAll('.stat-card').forEach(card => {
+    card.addEventListener('mousemove', (e) => {
+        if (!card.classList.contains('animate-in')) return;
+        const rect = card.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        const centerX = rect.width / 2;
+        const centerY = rect.height / 2;
+        const rotateX = ((y - centerY) / centerY) * -10;
+        const rotateY = ((x - centerX) / centerX) * 10;
+        card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateY(-10px) scale(1.03)`;
+    });
+
+    card.addEventListener('mouseleave', () => {
+        card.style.transform = '';
+    });
+});
+
 function animateCounter(element, target) {
     let current = 0;
     const increment = target / 30;
