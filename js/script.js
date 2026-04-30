@@ -321,50 +321,38 @@ const organizationGroup = document.getElementById('organizationGroup');
 const occupationGroup = document.getElementById('occupationGroup');
 const visitorOrganizationGroup = document.getElementById('visitorOrganizationGroup');
 
-if (resumeModal) {
-    // Add critical styles via stylesheet to ensure they're applied
-    const modalStyles = document.createElement('style');
-    modalStyles.textContent = `
-        #resumeModal {
-            position: fixed !important;
-            top: 0 !important;
-            left: 0 !important;
-            width: 100% !important;
-            height: 100% !important;
-            z-index: 2000 !important;
-        }
-        #resumeModal.active {
-            display: flex !important;
-        }
-    `;
-    document.head.appendChild(modalStyles);
+function openResumeModal() {
+    resumeModal.style.cssText = [
+        'display:flex',
+        'position:fixed',
+        'top:0',
+        'left:0',
+        'width:100%',
+        'height:100%',
+        'z-index:9999',
+        'align-items:center',
+        'justify-content:center',
+        'background:rgba(0,0,0,0.6)'
+    ].join(';');
+}
+
+function closeResumeModal() {
+    resumeModal.style.display = 'none';
+    if (resumeDownloadForm) resumeDownloadForm.reset();
+    resetFormFields();
 }
 
 if (downloadResumeBtn) {
-    downloadResumeBtn.addEventListener('click', (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        resumeModal.classList.add('active');
-        resumeModal.style.position = 'fixed';
-    });
+    downloadResumeBtn.addEventListener('click', openResumeModal);
 }
 
 if (modalCloseBtn) {
-    modalCloseBtn.addEventListener('click', () => {
-        resumeModal.classList.remove('active');
-        resumeDownloadForm.reset();
-        resetFormFields();
-    });
+    modalCloseBtn.addEventListener('click', closeResumeModal);
 }
 
-// Close modal when clicking outside the modal content
 if (resumeModal) {
     resumeModal.addEventListener('click', (e) => {
-        if (e.target === resumeModal) {
-            resumeModal.classList.remove('active');
-            resumeDownloadForm.reset();
-            resetFormFields();
-        }
+        if (e.target === resumeModal) closeResumeModal();
     });
 }
 
