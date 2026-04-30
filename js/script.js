@@ -310,3 +310,166 @@ if (heroTyped) {
     // Start after a short delay so hero content loads first
     setTimeout(typeRole, 600);
 }
+
+// ===== Resume Download Modal =====
+const downloadResumeBtn = document.getElementById('downloadResumeBtn');
+const resumeModal = document.getElementById('resumeModal');
+const modalCloseBtn = document.getElementById('modalCloseBtn');
+const resumeDownloadForm = document.getElementById('resumeDownloadForm');
+const purposeSelect = document.getElementById('purposeSelect');
+const organizationGroup = document.getElementById('organizationGroup');
+const occupationGroup = document.getElementById('occupationGroup');
+const visitorOrganizationGroup = document.getElementById('visitorOrganizationGroup');
+
+if (resumeModal) {
+    // Add critical styles via stylesheet to ensure they're applied
+    const modalStyles = document.createElement('style');
+    modalStyles.textContent = `
+        #resumeModal {
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+            width: 100% !important;
+            height: 100% !important;
+            z-index: 2000 !important;
+        }
+        #resumeModal.active {
+            display: flex !important;
+        }
+    `;
+    document.head.appendChild(modalStyles);
+}
+
+if (downloadResumeBtn) {
+    downloadResumeBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        resumeModal.classList.add('active');
+        resumeModal.style.position = 'fixed';
+    });
+}
+
+if (modalCloseBtn) {
+    modalCloseBtn.addEventListener('click', () => {
+        resumeModal.classList.remove('active');
+        resumeDownloadForm.reset();
+        resetFormFields();
+    });
+}
+
+// Close modal when clicking outside the modal content
+if (resumeModal) {
+    resumeModal.addEventListener('click', (e) => {
+        if (e.target === resumeModal) {
+            resumeModal.classList.remove('active');
+            resumeDownloadForm.reset();
+            resetFormFields();
+        }
+    });
+}
+
+// Handle purpose dropdown change
+if (purposeSelect) {
+    purposeSelect.addEventListener('change', () => {
+        const purpose = purposeSelect.value;
+
+        organizationGroup.style.display = 'none';
+        occupationGroup.style.display = 'none';
+        visitorOrganizationGroup.style.display = 'none';
+
+        if (purpose === 'hire') {
+            organizationGroup.style.display = 'flex';
+        } else if (purpose === 'visitor') {
+            occupationGroup.style.display = 'flex';
+            visitorOrganizationGroup.style.display = 'flex';
+        }
+    });
+}
+
+function resetFormFields() {
+    organizationGroup.style.display = 'none';
+    occupationGroup.style.display = 'none';
+    visitorOrganizationGroup.style.display = 'none';
+}
+
+// Handle form submission
+if (resumeDownloadForm) {
+    resumeDownloadForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+
+        const email = document.getElementById('userEmail').value.trim();
+        const purpose = document.getElementById('purposeSelect').value;
+        const organizationName = document.getElementById('organizationName').value.trim();
+        const occupation = document.getElementById('occupationField').value.trim();
+        const visitorOrganization = document.getElementById('visitorOrganization').value.trim();
+
+        // Validation
+        if (!email || !isValidEmail(email)) {
+            showAlert('Please enter a valid email address', 'error');
+            return;
+        }
+
+        if (!purpose) {
+            showAlert('Please select an option', 'error');
+            return;
+        }
+
+        if (purpose === 'hire' && !organizationName) {
+            showAlert('Please enter organization name', 'error');
+            return;
+        }
+
+        if (purpose === 'visitor' && !occupation) {
+            showAlert('Please enter your occupation', 'error');
+            return;
+        }
+
+        const organization = purpose === 'hire' ? organizationName : (visitorOrganization || '');
+
+        const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxHI0uwhdvv_ekuNHoSuCRgYQyXl-imxIKC1V4Tlk8RjyplTQxLuPURa1x1ANtrhrpQ/exec';
+
+        const submitBtn = resumeDownloadForm.querySelector('button[type="submit"]');
+        const originalText = submitBtn.innerHTML;
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Preparing...';
+        submitBtn.disabled = true;
+
+        fetch(APPS_SCRIPT_URL, {
+            method: 'POST',
+            body: new URLSearchParams({
+                type: 'resume',
+                email: email,
+                purpose: purpose === 'hire' ? 'To Hire' : 'Visitor',
+                occupation: occupation || '',
+                organization: organization
+            })
+        })
+        .then(response => response.json())
+        .then(() => {
+            downloadResume();
+        })
+        .catch(() => {
+            // Still allow download even if logging fails
+            downloadResume();
+        })
+        .finally(() => {
+            submitBtn.innerHTML = originalText;
+            submitBtn.disabled = false;
+        });
+    });
+}
+
+function downloadResume() {
+    const resumePath = 'images/Qulification Documents/Resume - Durvesh Karande .pdf';
+    const link = document.createElement('a');
+    link.href = resumePath;
+    link.download = 'Resume - Durvesh Karande.pdf';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    // Close modal and show success message
+    resumeModal.classList.remove('active');
+    showAlert('Resume downloaded successfully! Thank you for your interest.', 'success');
+    resumeDownloadForm.reset();
+    resetFormFields();
+}
