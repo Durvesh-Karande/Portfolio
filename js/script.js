@@ -141,6 +141,25 @@ scrollElements.forEach(element => {
     scrollObserver.observe(element);
 });
 
+// ===== Timeline Scroll Animation =====
+const timelineItems = document.querySelectorAll('.timeline-item');
+
+const timelineObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+        if (entry.isIntersecting) {
+            entry.target.classList.add('animate-in');
+            timelineObserver.unobserve(entry.target);
+        }
+    });
+}, {
+    threshold: 0.2,
+    rootMargin: '0px 0px -50px 0px'
+});
+
+timelineItems.forEach(item => {
+    timelineObserver.observe(item);
+});
+
 // ===== Navbar Background on Scroll =====
 const navbar = document.querySelector('.navbar');
 if (navbar) {
